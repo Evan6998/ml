@@ -19,6 +19,13 @@ random.rand(4, 4)
 
 #mat() 将数组转化为矩阵
 randmat = mat(random.rand(4, 4))
+
 # I操作符实现了求逆运算
-randmat.I
+invrandmat = randmat.I
+
+# 矩阵乘法
+randmat * invrandmat
+
+#eye(n)代表 n * n的单位矩阵
+randmat - eye(4)
 ```
