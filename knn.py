@@ -1,5 +1,6 @@
 import numpy
 import operator
+import os
 
 def classify0(inX, dataSet, labels, k):
     dataSetNum = dataSet.shape[0]
@@ -12,8 +13,7 @@ def classify0(inX, dataSet, labels, k):
     for i in range(k):
         labelName = labels[sortedIndicesDistance[i]]
         labelCount[labelName] = labelCount.get(labelName, 0) + 1
-    sortedLabelCount = sorted(labelCount.iteritems(), 
-    key=operator.itemgetter(1), reverse=True)
+    sortedLabelCount = sorted(labelCount.iteritems(), key=operator.itemgetter(1), reverse=True)
     return sortedLabelCount[0][0]
 
 def file2matrix(filename):
@@ -62,4 +62,44 @@ def datingClassTest():
     print "the total error rate is %f" % (errorCount / float(testCases))
 
         
+# def img2vector(filename):
+#     ret = numpy.zeros((1, 1024))
+#     fr = open(filename)
+#     for i in range(32):
+#         lineStr = fr.readline()
+#         lineStr = lineStr.strip()
+#         ret[0, i*32 :(i+1)*32] = list(lineStr)
+#     return ret
+
+def img2vector(filename):
+    ret = [[]]
+    fr = open(filename)
+    for line in fr.readlines():
+        ret[0].extend([int(i) for i in list(line.strip())])
+    return numpy.array(ret)
+
+def handWritingClassTest():
+    handWriteLabels = []
     
+    trainFileList = os.listdir('trainingDigits')
+    m = len(trainFileList)
+    trainMat = numpy.zeros((m, 1024))
+    for i in range(m):
+        fileName = trainFileList[i]
+        trainMat[i, :] = img2vector('trainingDigits/%s' % fileName)
+        handWriteLabels.append(fileName.split('_')[0])
+    
+    errorCount = 0
+    testFileList = os.listdir('testDigits')
+    n = len(testFileList)
+    for i in range(n):
+        fileName = testFileList[i]
+        classNum = fileName.split('_')[0]
+        testCaseVector = img2vector('testDigits/%s' % fileName)
+        classifyResult = classify0(testCaseVector, trainMat, handWriteLabels, 3)
+        if classifyResult != classNum: 
+            errorCount += 1
+            print "\033[93mthe classifier came out with %s, real answer is %s\033[0m" % (classifyResult, classNum)
+        else:
+            print "the classifier came out with %s, real answer is %s" % (classifyResult, classNum)            
+    print "the total error rate is %f" % (errorCount / float(n))        
