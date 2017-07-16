@@ -34,3 +34,32 @@ def file2matrix(filename):
             classLabel.append(love_dictionary.get(lineList[-1]))
         index += 1
     return retMat, classLabel
+
+def autoNorm(dataSet):
+    minValues = dataSet.min(0)
+    maxValues = dataSet.max(0)
+    range = maxValues - minValues
+    normalDataSet = numpy.zeros(numpy.shape(dataSet))
+    m = dataSet.shape[0]
+    normalDataSet = dataSet - numpy.tile(minValues, (m, 1))
+    normalDataSet /= numpy.tile(range, (m, 1))
+    return normalDataSet, range, minValues
+
+def datingClassTest():
+    hoRatio = 0.050
+    datingDataMat, datingLabels = file2matrix('datingTestSet.txt')
+    normDataSet, ranges, minValues = autoNorm(datingDataMat)
+    m = normDataSet.shape[0]
+    testCases = int(m * hoRatio)
+    errorCount = 0
+    for i in range(testCases):
+        classifierResult = classify0(normDataSet[i], normDataSet[testCases:], datingLabels[testCases:], 3)
+        if classifierResult != datingLabels[i]: 
+            errorCount += 1
+            print "\033[93mthe classifier came out with %d, real answer is %d\033[0m" % (classifierResult, datingLabels[i])
+        else:
+            print "the classifier came out with %d, real answer is %d" % (classifierResult, datingLabels[i])            
+    print "the total error rate is %f" % (errorCount / float(testCases))
+
+        
+    
