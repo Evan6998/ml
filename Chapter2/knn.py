@@ -13,8 +13,7 @@ def classify0(inX, dataSet, labels, k):
     for i in range(k):
         labelName = labels[sortedIndicesDistance[i]]
         labelCount[labelName] = labelCount.get(labelName, 0) + 1
-    sortedLabelCount = sorted(labelCount.iteritems(), key=operator.itemgetter(1), reverse=True)
-    return sortedLabelCount[0][0]
+    return max(labelCount.iterkeys(), key=lambda key:labelCount[key])
 
 def file2matrix(filename):
     love_dictionary={'largeDoses':3, 'smallDoses':2, 'didntLike':1}

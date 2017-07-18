@@ -1,3 +1,4 @@
+#coding=utf-8
 from math import log
 
 def createDataSet():
@@ -41,9 +42,44 @@ def chooseBestFeatureToSplit(dataSet):
             subMat = splitDataSet(dataSet, i, val)
             prob = len(subMat)/float(len(dataSet))
             entropy += prob * calcShannonEnt(subMat)
-        # infoGain代表熵降， 熵降越多，分类越好
+        #infoGain代表熵降， 熵降越多，分类越好
         infoGain = baseEntropy - entropy
         if infoGain > bestInfoGain:
             bestFeature = i
             bestInfoGain = infoGain
     return bestFeature  
+
+def majorCnt(classList):
+    classCount = {}
+    for vote in classList:
+        classCount[vote] = classCount.get(vote, 0) + 1
+    return max(classCount.iterkeys(), key=lambda vote:classCount[vote])
+
+def createTree(dataSet, labels):
+    """
+    :type dataSet: np.array  
+    :type labels: List  
+    :rtype: labelName or tree
+    """
+    classList = [dataVec[-1] for dataVec in dataSet]
+    # 类别完全相同，停止划分，返回类别
+    if classList.count(classList[0]) == len(classList):
+        return classList[0]
+    # 遍历完所有特征，返回类别出现次数最多的
+    if len(dataSet[0]) == 1:
+        return majorCnt(classList)
+
+    bestFeature = chooseBestFeatureToSplit(dataSet)
+    bestFeatureLabel = labels[bestFeature]
+    
+    myTree = {bestFeatureLabel:{}}
+    del(labels[bestFeature])
+
+    featureVals = [dataVec[bestFeature] for dataVec in dataSet]
+    uniqueVal = set(featureVals)
+    
+    for val in uniqueVal:
+        # 传递labels的拷贝给递归函数
+        subLabels = labels[:]
+        myTree[bestFeatureLabel][val] = createTree(splitDataSet(dataSet, bestFeature, val), subLabels)
+    return myTree
