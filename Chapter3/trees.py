@@ -83,3 +83,14 @@ def createTree(dataSet, labels):
         subLabels = labels[:]
         myTree[bestFeatureLabel][val] = createTree(splitDataSet(dataSet, bestFeature, val), subLabels)
     return myTree
+
+# 上述构造决策树 下面使用决策树进行分类
+def classify(tree, labels, dataVec):
+    featName = tree.keys()[0]
+    treeChildren = tree[featName]
+    featIndex = labels.index(featName)
+    for key in treeChildren:
+        if key == dataVec[featIndex]:
+            classLabel = classify(treeChildren[key], labels, dataVec) if type(treeChildren[key]).__name__ == 'dict' else treeChildren[key]
+    return classLabel
+
